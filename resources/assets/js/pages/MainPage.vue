@@ -3,7 +3,7 @@ import {mapState} from 'Vuex';
 
 
 
-import {likePostRoute,feedsRoute,getHeader,userRoute,postsRoute,getFollowers} from '../config.js';
+import {likePostRoute,feedsRoute,getHeader,userRoute,postsRoute,getFollowers,submitPost} from '../config.js';
 
  import {clientId, clientSecret } from '../.env.js';
 
@@ -15,23 +15,109 @@ export default{
     computed:{
        ...mapState({
         userStore: state => state.userStore,
-        quizStore: state => state.quizStore
+        quizStore: state => state.quizStore,
+        initDataStore: state => state.initDataStore,
+
        })
    },
    data:function(){
   		return {
-  			posts:null
-  		}
-  	},
+  			posts:null,
+        new_post_img:'',
+
+        new_post:{
+        title:'',
+        image:'',
+        post_text:'',
+        category_id:'',
+        user_id:''
+       },
+
+       new_question:{
+        category_id:'',
+        question_text:'',
+        expert_id:''
+        },
+
+        answers:{
+          answer_1:{
+            answer_text:'',
+            is_correct:'',
+          },
+          answer_2:{
+            answer_text:'',
+            is_correct:'',
+          },
+          answer_3:{
+            answer_text:'',
+            is_correct:'',
+          },
+          answer_4:{
+            answer_text:'',
+            is_correct:'',
+          },
+          
+
+        }
+  	}
+  },
   	mounted(){
 
   		this.getFeeds()
       this.getFollowersFx()
       this.getChallenges()
 
+    
+      $(".new_post_img").hide();
+
+      $("input[type='file']").hide();
+
+      $('.upload-pic').click(function(){
+
+      $("input[type='file']").trigger('click');
+     
+      });
+
+
+/*
+      $('input[type="file"]').on('change', function() {
+  var val = $(this).val();
+  $(this).siblings('span').text(val);
+})
+
+*/
 
     },
     methods:{
+
+      handleLogout:function(){
+        window.localStorage.removeItem('authUser')
+        this.$store.dispatch('clearAuthUser')
+
+       
+
+        window.localStorage.removeItem('userCategories')
+        
+        window.localStorage.removeItem('categoryLength')
+
+       
+       
+        window.localStorage.removeItem('setUserInfo')
+     
+
+        
+
+        this.$store.dispatch('clearUserCategories')
+
+        this.$store.dispatch('clearCategoryLength')
+
+        this.$store.dispatch('clearUserFollowers')
+
+
+        this.$store.dispatch('clearUsersToFollow')
+         
+        this.$router.push({name: 'home'})
+      },
     singlePost:function(post_id){
 
 		 this.$store.dispatch('setSinglePost',post_id)
@@ -88,10 +174,67 @@ export default{
 
         socketTestPage:function(){
           this.$router.push({name:'socket_test'})
-        }
-    }
+        },
 
-}
+
+
+onFileChange(e) {
+                let files = e.target.files || e.dataTransfer.files;
+                if (!files.length)
+                    return;
+
+                  $(".new_post_img").show();
+                this.createImage(files[0]);
+
+
+            },
+            createImage(file) {
+                
+             
+
+                let reader = new FileReader();
+                let vm = this;
+                reader.onload = (e) => {
+                    vm.new_post.image = e.target.result;
+
+
+                };
+                reader.readAsDataURL(file);
+            },
+
+            submitPost(){
+
+                      const postData={
+                       
+                       'title':this.new_post.title,
+                       'post_text':this.new_post.post_text,
+                       'image':this.new_post.image,
+                       'category_id':this.new_post.category_id,
+                       'user_id':this.userStore.authUser.userobject.id,
+                       'scope':''
+
+                      }
+      
+      this.$http.post(submitPost,postData).then((response) => {
+
+
+                           console.log(response)
+
+                           //show login vue
+
+                        
+                             
+                                }, (response) => {
+
+                           console.log(response)
+
+                          
+ 
+                        });
+                  }
+             }
+
+        }
 </script>
 
 <template>
@@ -123,6 +266,7 @@ export default{
   <div class="tab-content chat-tab">
       <div class="tab-pane fade" id="chats">
           <!--Chats-->
+            <a @click="handleLogout()">Logout</a>
 	  	  <chat></chat>
      </div>
      <div class="tab-pane fade in active" id="challenge">
@@ -131,14 +275,71 @@ export default{
       <div class="tab-pane fade" id="posts">
      <!-- POSTS ////////////////////////////////////////////-->
  <div class="container">
-    <div class="col-xs-12">
-      <router-link :to="{name:'new_post'}">
-	      <a class="btn btn-primary"><i class="fa fa-plus"></i></a>
-	    </router-link>
-    </div>
-  	
+    
+ <div class="col-md-3 col-sm-6 my-card">
+     <form v-on:submit.prevent="submitPost" enctype="multipart/form-data">
+            <div class="notification">
+              
+         <!-- add an error here -->
+            </div>
+          
+            
+        
 
-  	  <div class="col-md-3 col-sm-4 article-cell my-card" v-for="post in posts">
+              <div class="w3-card-2 new-post"> 
+                    
+                    <input type="text" name="title" class="form-control" placeholder="Add title" v-model="new_post.title">
+
+                    <div style="width='100%'" class="uploading-area">
+                    <div class="new_post_img">
+                    <img :src="new_post.image" class="img-responsive">
+                      
+                    </div>
+
+                    <a class="w3-btn-floating-large w3-teal w3-medium upload-pic">
+                   <i class="fa fa-picture-o fa-lg" aria-hidden="true"></i></a>
+                  
+
+                  <input type="file" name="image" class="upload" placeholder="Choose image" v-on:change="onFileChange">
+                    
+                     <span class="image_name"></span>
+                   </div>
+                    
+                  
+                  <textarea class="form-control" name="post_text" placeholder="What's new!" rows="4" v-model="new_post.post_text"></textarea>
+                   <footer>
+                   <table>
+                       <tr>
+                         <th>
+                           
+                   <select placeholder="Category" class="form-control" v-model="new_post.category_id" name="category_id">
+                      <option disabled>Member Type</option>
+                      <option :value="category.id" v-for="category in initDataStore.categories">{{category.name}}</option>
+                   </select>
+                         </th>
+                         <th>
+                           <button class=" newsctrl w3-btn-floating w3-teal w3-white w3-border w3-border-teal w3-medium submit-post " type="submit">
+             <i class="fa fa-upload" aria-hidden="true"></i>
+           </button>
+                         </th>
+
+                       </tr>
+                     </table>
+                     <div>
+                     </div>
+
+                    </footer>   
+                  
+                   
+              </div>
+                </form>     
+            </div>
+
+
+
+            <!-- posts -->
+
+             <div class="col-md-3 col-sm-4 article-cell my-card" v-for="post in posts">
           <div class=" w3-card-2">
             <p class="w3-center post_title col-xs-10">
                {{post.title}} 
@@ -175,7 +376,7 @@ export default{
                            
                 <a @click="singlePost(post.id)" class="w3-btn-floating w3-teal w3-white w3-border w3-border-teal w3-medium">
                    <i class="fa fa-comments" aria-hidden="true"></i>
-						    </a>
+                </a>
           </div>
 
                               <div class="w3-col s3"><a href="" class="w3-btn-floating w3-teal w3-white w3-border w3-border-teal w3-medium"><i class="fa fa-share" aria-hidden="true"></i></a></div>
@@ -191,6 +392,7 @@ export default{
               </footer>    
             </div>
      </div>
+
 
   </div>
 <!-- ///////////////////////////// POSTS  -->
@@ -208,6 +410,13 @@ export default{
 </template>
 
 <style>
+.new_post_img img{
+        max-height: 250px;
+       
+    }
+    .new_post_img{
+
+    }
 
 
 </style>

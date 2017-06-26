@@ -1,7 +1,7 @@
 <script>
 import {mapState} from 'Vuex'
 
-import { getHeader,followUsersRoute,followUserRoute} from '../config.js';
+import { getHeader,followUsersRoute,followUserRoute,addUserAnswers} from '../config.js';
 
 import {clientId, clientSecret } from '../.env.js';
 
@@ -18,7 +18,7 @@ export default{
              pre_game_counter:true,
              
              first_timer_seconds:6,
-             question_countdown:15,
+             question_countdown:10,
 
              question_text:null,
              answer_one_text:null,
@@ -31,6 +31,11 @@ export default{
              answer_two_id:null,
              answer_three_id:null,
              answer_four_id:null,
+
+             answer_one_is_correct:null,
+             answer_two_is_correct:null,
+             answer_three_is_correct:null,
+             answer_four_is_correct:null,
 
              user_one_names:null,
              user_two_names:null,
@@ -48,15 +53,21 @@ export default{
              total_number_of_questions:'',
              selected_answer_number:0,
              selected_answer_id:0,
-             question_id:0
+             selected_answer_is_correct:0,
+             question_id:0,
+             answers:[]
              
          }
       },
 
        mounted(){
         this.number_of_questions=this.userStore.challenge.number_of_questions
+
         this.total_number_of_questions=this.userStore.challenge.number_of_questions
+
         this.quiz_session_id=this.userStore.challenge.quiz_session_id
+
+
 
          this.firstTimer()
 
@@ -87,74 +98,86 @@ export default{
         this.getQuestion()
       },
       getQuestion:function(){
-           this.question_text=this.userStore.challenge.questions[this.questionIndex].question_text
-           this.answer_one_text=this.userStore.challenge.questions[this.questionIndex].answers[0].answer_text
-           this.answer_two_text=this.userStore.challenge.questions[this.questionIndex].answers[1].answer_text
-           this.answer_three_text=this.userStore.challenge.questions[this.questionIndex].answers[2].answer_text
-           this.answer_four_text=this.userStore.challenge.questions[this.questionIndex].answers[3].answer_text
+       this.question_text=this.userStore.challenge.questions[this.questionIndex].question_text
+      
+       this.answer_one_text=this.userStore.challenge.questions[this.questionIndex].answers[0].answer_text
+       this.answer_two_text=this.userStore.challenge.questions[this.questionIndex].answers[1].answer_text
+       this.answer_three_text=this.userStore.challenge.questions[this.questionIndex].answers[2].answer_text
+       this.answer_four_text=this.userStore.challenge.questions[this.questionIndex].answers[3].answer_text
 
-           this.question_id=this.userStore.challenge.questions[this.questionIndex].id
-           this.answer_one_id=this.userStore.challenge.questions[this.questionIndex].answers[0].id
-           this.answer_two_id=this.userStore.challenge.questions[this.questionIndex].answers[1].id
-           this.answer_three_id=this.userStore.challenge.questions[this.questionIndex].answers[2].id
-           this.answer_four_id=this.userStore.challenge.questions[this.questionIndex].answers[3].id
+       this.question_id=this.userStore.challenge.questions[this.questionIndex].id
+       
+       this.answer_one_id=this.userStore.challenge.questions[this.questionIndex].answers[0].id
+       this.answer_two_id=this.userStore.challenge.questions[this.questionIndex].answers[1].id
+       this.answer_three_id=this.userStore.challenge.questions[this.questionIndex].answers[2].id
+       this.answer_four_id=this.userStore.challenge.questions[this.questionIndex].answers[3].id 
 
-
+       this.answer_one_is_correct=this.userStore.challenge.questions[this.questionIndex].answers[0].is_correct
+       this.answer_two_is_correct=this.userStore.challenge.questions[this.questionIndex].answers[1].is_correct
+       this.answer_three_is_correct=this.userStore.challenge.questions[this.questionIndex].answers[2].is_correct
+       this.answer_four_is_correct=this.userStore.challenge.questions[this.questionIndex].answers[3].is_correct
        },
-     questionCountDown:function(){
+      questionCountDown:function(){
       
       this.question_countdown--;
-     if(this.question_countdown<10){
-      this.question_countdown='0'+this.question_countdown;
-     }
-    if(this.question_countdown != 0){
+      if(this.question_countdown<10){
+       this.question_countdown='0'+this.question_countdown;
+      }
+      if(this.question_countdown != 0){
     
-     setTimeout(this.questionCountDown,1000)
+       setTimeout(this.questionCountDown,1000)
     
-    }
-    else{
-       
-       this.newQuestion()
-        
-       }
-     },
+      }
+        else{
+         
+         this.newQuestion()
+          
+          }
+       },
 
-     newQuestion:function(){
+       newQuestion:function(){
        
 
        this.number_of_questions--;
        
        this.questionIndex++;
+       
+       setTimeout(this.answering,1)
 
-        this.selected_answer_number=0;
-        this.selected_answer_id=0; 
+       setTimeout(this.resetAnswer,50)
 
-       setTimeout(this.answering,50)
 
 
       
       if(this.number_of_questions==0){
-        console.log('questions finished!')
-      
-        this.$router.push({name:'main'})
+        
+      this.answering()
 
-      }
-      else{
+
+      console.log('questions finished!')
+
+      this.sendAnswers()
+      
+       
+
+       }
+       else{
        this.getQuestion()
 
-       this.question_countdown=15
+       this.question_countdown=10
 
        this.questionCountDown();
 
       }
     
-   },
-  getAnswer:function(payload){
+      },
+      getAnswer:function(payload){
 
-        console.log(payload.answer.answer_id);
+      console.log(payload.answer.answer_id+','+payload.answer.is_correct);
 
-        this.selected_answer_number=payload.answer.number;
-        this.selected_answer_id=payload.answer.id;
+      this.selected_answer_number=payload.answer.number;
+      this.selected_answer_id=payload.answer.answer_id;
+      this.selected_answer_is_correct=payload.answer.is_correct;
 
       },
       resetAnswer:function(){
@@ -164,15 +187,42 @@ export default{
       },
       answering:function(){
 
-          var data={
-        "user_id":this.userStore.authUser.userobject.id,
-        "quiz_session_id":this.quiz_session_id,
-        "question_id":this.question_id,
-        "answer_id":this.answer_id
+      var data={
+      "user_id":this.userStore.authUser.userobject.id,
+      "quiz_session_id":this.quiz_session_id,
+      "question_id":this.question_id,
+      "answer_id":this.selected_answer_id,
+      "is_correct":this.selected_answer_is_correct
       }
 
-        this.$store.dispatch('addSelectedAnswers',data)
+       /* this.$store.dispatch('addSelectedAnswers',data)*/
+
+      this.answers.push(data)
+      
+      },
+      sendAnswers(){
+
+      console.log('This is the final answers: ',this.answers)
+
+      const pData={
+
+      'number_of_questions':this.total_number_of_questions,
+
+      'quiz_answers':this.answers
+      }
        
+      this.$http.post(addUserAnswers,pData).then((response) => {
+
+       
+            console.log('here is the data',response)
+
+            this.$router.push({name:'results'})
+      
+       }, (response) => {
+
+      console.log("Something went wrong!")
+
+      });
       }
    }
 }
@@ -184,7 +234,7 @@ export default{
 
   <!-- MAIN VIEW -->
     <div class="col-xs-12 challenge-opponents">
-        <span class="chall-img-div" v-if="userStore.challenge.user_one_id === userStore.authUser.userobject.id">
+      <span class="chall-img-div" v-if="userStore.challenge.user_one_id === userStore.authUser.userobject.id">
 
                 <div class="pull-left">
                   <div class="col-xs-12">
@@ -226,9 +276,7 @@ export default{
                      <span>{{userStore.challenge.user_two_first_name}}</span>
                   </div> 
                 </div>
-            
-           
-      </span>
+       </span>
 
      </div>
 <div id="playground" class="col-xs-12" v-show="gameyard">
@@ -243,9 +291,6 @@ export default{
        
      </div>
      </div>
-
-     
-
      <div class="col-xs-12 challenge-question">
        <p>{{question_text}}</p>
      </div>  
@@ -263,7 +308,7 @@ export default{
 </div>
 
 <div class="col-xs-12 challenge-answers">
-    <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':1,'answer_id':answer_one_id}})">
+    <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':1,'answer_id':answer_one_id,'is_correct':answer_one_is_correct}})">
          <div class="col-xs-1">
         </div>
          <div class="col-xs-11 challenge-answer-text">
@@ -274,7 +319,7 @@ export default{
          </div>
       </div>
 
-       <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':2,'answer_id':answer_two_id}})">
+       <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':2,'answer_id':answer_two_id,'is_correct':answer_two_is_correct}})">
          <div class="col-xs-1">
            
          </div>
@@ -286,7 +331,7 @@ export default{
          </div>
       </div>
 
-       <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':3,'answer_id':answer_three_id}})">
+       <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':3,'answer_id':answer_three_id,'is_correct':answer_three_is_correct}})">
          <div class="col-xs-1">
           
          </div>
@@ -298,7 +343,7 @@ export default{
          </div>
       </div>
 
-       <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':4,'answer_id':answer_four_id}})">
+       <div class="col-xs-12 challenge-answer" v-on:click="getAnswer({'answer':{'number':4,'answer_id':answer_four_id,'is_correct':answer_four_is_correct}})">
          <div class="col-xs-1">
            
          </div>
@@ -509,10 +554,6 @@ color:#fff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
   transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
-
-
-
-
 
 
 </style>

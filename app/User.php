@@ -26,8 +26,8 @@ class User extends Authenticatable
     ];
 
 public static $rules = [
-     'first_name'=>'required|min:2', 
-     'last_name'=>'required|min:2', 
+     'first_name'=>'required|min:2|regex:/^[\pL\s]+$/u', 
+     'last_name'=>'required|min:2|regex:/^[\pL\s]+$/u', 
      'email'=>'required|email|unique:users', 
      'password'=>'required|min:6|confirmed',
      'password_confirmation'=>'required|min:6',
@@ -69,4 +69,14 @@ protected static function validate($data){
            'App\Post','likes','user_id','post_id'
             );
     }
+
+     public function rooms(){
+        return $this->belongsToMany('App\Room','rooms_users','user_id','room_id');
+    }
+
+
+    public function messages(){
+        return $this->hasMany('App\Message');
+    }
+
 }

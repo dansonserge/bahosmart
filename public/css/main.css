@@ -57,6 +57,7 @@
      cursor: pointer;
 }
 
+
 .navbar-default .navbar-nav > li > a:hover,
 
 .navbar-default .navbar-nav > li > a:focus {
@@ -91,7 +92,9 @@
 #search {
 }
 #ul{
+  
     margin-right: 10px;
+
 }
 
 
@@ -1000,15 +1003,13 @@ margin-top: 20px;
 }
 
 .card-challenge-details > .chall_received_sign{
-  color: blue;
+      color: blue;
 
-  position: absolute;
-  top:25px;
+      position: absolute;
+      top:25px;
 
-  font-size: 15pt
-  
-
-}
+      font-size: 15pt;
+   }
 .card-challenge-details > .chall_sent_sign{
   color: green;
 
@@ -1031,7 +1032,7 @@ margin-top: 20px;
 .chall_view_received_sign{
    color: blue;
 
- margin-top: 28px;
+   margin-top: 28px;
    
   font-size: 20pt 
 }
@@ -1046,6 +1047,11 @@ margin-top: 20px;
 .in-call-view{
   padding-right: 50%;
 }
+
+.card-challenge-details > .chat-user-names{
+  margin-top: 50px;
+}
+
 
 
 

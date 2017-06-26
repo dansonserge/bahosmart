@@ -84,7 +84,7 @@ import {loginRoute, getHeader, userRoute} from '../config.js';
             <i class="fa fa-caret-right pull-right card-menu-list" aria-hidden="true"></i>
         </span> 
 
-      <span v-if="challenge.user_one_id === userStore.authUser.userobject.id">
+      <span v-if="challenge.user_one_id===userStore.authUser.userobject.id">
 
             <img :src="challenge.user_two_picture" class="img-circle" height="50">
             <span class="card-challenge-details col-xs-10">

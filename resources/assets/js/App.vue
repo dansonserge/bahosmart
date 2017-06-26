@@ -63,14 +63,7 @@ data:
         window.localStorage.removeItem('userCategories')
         
         window.localStorage.removeItem('categoryLength')
-
-       
-       
         window.localStorage.removeItem('setUserInfo')
-     
-
-        
-
         this.$store.dispatch('clearUserCategories')
 
         this.$store.dispatch('clearCategoryLength')

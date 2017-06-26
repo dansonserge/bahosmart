@@ -1,6 +1,6 @@
 export const clientId=2;
 
-export const clientSecret='IdknIV62QUwmHkByHB79lTrOOIiByhBTF9y1SK8H';
+export const clientSecret='yl3NirnOZjjymgXb2EyjWbzP6D0YDjUURVHnLH9j';
 
 export const userLoggedin=true;
 

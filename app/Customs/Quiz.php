@@ -9,6 +9,9 @@ use App\Category;
 use App\Question;
 use App\QuizSessionUserAnswer;
 use App\QuizQuestion;
+use App\QuizSessionQuestion;
+
+use DB;
 
 class Quiz{
 
@@ -17,21 +20,58 @@ public static function questionsMaker($quiz_session_id,$category_id,$number_of_q
 
        
 
-   
-				$questions=Question::where('category_id',$category_id)->inRandomOrder()->take($number_of_questions)->with('answers')->get();
-					
-				/*$quiz_session=QuizSession::find($quiz_session_id);
+$questions=Question::where('category_id',$category_id)->inRandomOrder()->take($number_of_questions)->with('answers')->get();
+				
 
-				$quiz=$quiz_session->questions()->saveMany($questions);
-				*/
+    
 
-			//$questions=Question::whereIn('id',[23,13,40,35,46])->get();
 
+   $quizSessionQuestion=QuizSessionQuestion::where('quiz_session_id',$quiz_session_id)->count();
+
+   $quiz_session=QuizSession::find($quiz_session_id);
+
+  
+
+       for($i=0;$i<$number_of_questions;$i++)
+            {
+               DB::table('quiz_session_questions')->insert([
+                 [
+                   'question_id' => $questions[$i]['id'], 
+                   'quiz_session_id' =>$quiz_session_id,
+                 ]
+                ]); 
+                 }
+
+                 	return $questions;
+
+  
+
+       /*  for($i=0;$i<$number_of_questions;$i++)
+            {
+               DB::table('quiz_session_questions')->insert([
+                 [
+                   'quiz_session_id' =>$quiz_session_id,
+                   'question_id' => $data[$i]['question_id'], 
+                 ]
+                ]);
+                 
+                
+                 }
+        */
+
+     
+
+      /*
 			$quiz_session=QuizSession::find($quiz_session_id);
 
-			$quiz=$quiz_session->questions()->saveMany($questions);
+            $quizSessionQuestion=QuizSessionQuestion::where('quiz_session_id')->count();  
+            
+            if($quizSessionQuestion==0){
+			 $quiz=$quiz_session->questions()->saveMany($questions);
+            }*/
 
-			return $questions;
+
+		
 
    }
 

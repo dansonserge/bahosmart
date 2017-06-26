@@ -4,13 +4,14 @@
 
   import {clientId, clientSecret } from '../.env.js';
   
-import {challengeRequest} from '../config.js';
+import {challengeRequest,getPrivateRoom} from '../config.js';
 	export default{
 
 		computed:{
        ...mapState({
         userStore: state => state.userStore,
-        initDataStore: state => state.initDataStore
+        initDataStore: state => state.initDataStore,
+        chatStore: state => state.chatStore,
        })
    },
    mounted(){
@@ -74,6 +75,24 @@ import {challengeRequest} from '../config.js';
           }, (response) => {
         console.log(response)
         });
+    },
+    getChat:function(){
+      
+       const pData={
+       'user_one_id':this.userStore.authUser.userobject.id,
+       'user_two_id':this.userStore.current_user.id,
+       'room_type':'private'
+       };
+
+
+
+    
+      this.$store.dispatch('setCurrentChatView');
+
+
+ 
+       
+
     }
   }
 }
@@ -89,7 +108,7 @@ import {challengeRequest} from '../config.js';
       <div class="col-xs-12">
            <div class="card card-2 col-xs-12">
                 <div class="card-content">
-                   <a class="btn btn-primary">Message</a>
+                   <a class="btn btn-primary" v-on:click="getChat()"><b>Chat</b></a>
                 </div>
                  <hr>
                 <div class="card-content">
@@ -101,7 +120,7 @@ import {challengeRequest} from '../config.js';
                   <div class="panel-heading">
                     <h4 class="panel-title">
                       <a data-toggle="collapse" href="#collapse1">
-                         <a class="btn btn-primary">Challenge</a>
+                         <a class="btn btn-primary"><b>Challenge</b></a>
                       </a>
                     </h4>
                   </div>

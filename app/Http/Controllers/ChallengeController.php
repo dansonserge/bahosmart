@@ -7,16 +7,20 @@ use App\QuizSession;
 use App\Customs\Quiz;
 use App\QuizSessionUserAnswer;
 use DB;
-
+use App\QuizQuestion;
 use Illuminate\Support\Facades\Redis as LRedis;
 
 use App\Transformer\QuizReportTransformer;
+
+use App\User;
 
 
 use Dingo\Api\Routing\Helpers;
 
 use App\Category;
 use App\Pack;
+
+use App\Question;
 
 class ChallengeController extends Controller
 {
@@ -70,8 +74,6 @@ class ChallengeController extends Controller
               'category_name'=>$category_name,
               'number_of_questions'=>$pack->questions,
               'status'=>0
-
-
            ];
 
       $redis = LRedis::connection();
@@ -127,10 +129,7 @@ class ChallengeController extends Controller
               'pack_name'=>$request->pack_name,
               'category_name'=>$request->category_name,
               'number_of_questions'=>$request->number_of_questions,
-              'status'=>0
-
-
-           ];
+              'status'=>0];
 
       $redis = LRedis::connection();
   
@@ -139,10 +138,7 @@ class ChallengeController extends Controller
     
     return response()->json(['success'=>1,'failure'=>0,'msg'=>$data],200);
 
-
-     
-      
-    }
+   }
  
  public function usersStartQuiz(Request $request){
 
@@ -187,134 +183,127 @@ class ChallengeController extends Controller
   
       $redis->publish('RealTimeChannel',json_encode($data));
 
-   return response()->json(['success'=>1,'failure'=>0,'msg'=>$questions],200);
+     return response()->json(['success'=>1,'failure'=>0,'msg'=>$questions],200);
 
 
-
-    	/*
-           Required
-           ---------
-             -Request ID 
-             -User ID(USer 1 or User 2)
-
-           Processes
-           ---------
-              - Check if the user is user 1. If so, update the user_one_start to 1
-              
-              - if both users have clicked the start button; using socket redirect them to the second screen and run the count down component. and therefore run the questions generator method.
-
-    	*/
-
-
-          /*    $quiz=QuizSession::find($request->quiz_id);
-
-              $user_one=$quiz->user_one_id;
-              $user_two=$quiz->user_two_id;
-              
-              $category_id=$quiz->category_id;
-              $pack_id=$quiz->pack_id;
-
-
-              
-              $quizMaker = new Quiz;
-                  
-                   
-               return $quizMaker->questionsMaker($request->quiz_id,$category_id,$pack_id);*/
-    
-               // Check whether the user is user 1
-/*
-             if($user_one == $request->user_id){
-
-                	 $quiz->user_one_start=1;
-                	 $quiz->save();
-                        //check whether user two has clicked the start button
-                	       if($quiz->user_two_start == 1){
-
-                	            //generate questions into database
-
-                      return $quizMaker->questionsMaker($request->quiz_id,$category_id,$pack_id);
-
-                	         	//using socket.io change the user interface of the user
-
-                	       }else{
-
-                	       	return 'user two has not clicked START';
-                       }
-
-                  }else if($user_two == $request->user_id){
-
-                	 $quiz->user_two_start=1;
-                	 $quiz->save();
-                        //check whether user one has clicked the start button
-                	       if($quiz->user_one_start == 1){
-                            
-                	         
-                	        //generate questions into database
-
-                    return $quizMaker->questionsMaker($request->quiz_id,$category_id,$pack_id);
-
-
-                	       	//using socket.io change the user interface of the user
-                             
-
-                	       }else{
-
-                	       	return 'user one has not clicked START';
-                       }
-               }
-              else{
-           
-             return response()->json(['success'=>0,'failure'=>1,'msg'=>'Not allowed!'],200);
-              	
-              }*/
          }
 
 
 
     public function usersQuizAnswers(Request $request){
             
-            $userAnswer=new QuizSessionUserAnswer;
+         $userAnswer=new QuizSessionUserAnswer;
          
+       
+         
+         $j=(int) $request->number_of_questions;
 
+
+            for($i=0;$i<$j;$i++)
+            {
+               DB::table('quiz_session_users_answers')->insert([
+                 [
+                   'quiz_session_id' => $request->quiz_answers[$i]['quiz_session_id'], 
+                   'user_id' => $request->quiz_answers[$i]['user_id'], 
+                   'question_id' => $request->quiz_answers[$i]['question_id'], 
+                   'answer_id' => $request->quiz_answers[$i]['answer_id']?$request->quiz_answers[$i]['answer_id']:null,
+                   'status'=>$request->quiz_answers[$i]['is_correct']
+                 ]
+                ]);
+             }
+            
+            $user=User::find($request->quiz_answers[0]['user_id']);
+
+          $data=[  
+              'channel_type'=>'answers',
+
+             'answers_from_server'=>$request->quiz_answers,
+             'user'=>$user
+              
+             ];
+
+          $redis = LRedis::connection();
   
+      $redis->publish('RealTimeChannel',json_encode($data));
 
 
-         $data = json_decode($request->quiz_answers, TRUE);
-
-            for($i=1;$i<=count($data);$i++){
-             
-             DB::table('quiz_session_users_answers')->insert([
-               [
-                 'quiz_session_id' => $data['question_'.(string)$i]['quiz_session_id'], 
-                 'user_id' => $data['question_'.(string)$i]['user_id'], 
-                 'question_id' => $data['question_'.(string)$i]['question_id'], 
-                 'answer_id' => $data['question_'.(string)$i]['answer_id']
-               ],
-              ]);
-              
-              
-            }
+        return response()->json(['success'=>1,'failure'=>0,'msg'=> $request->quiz_answers],200);
            
-           
+          
 
-    return response()->json(['success'=>1,'failure'=>0,'msg'=>'Data saved successfully!'],200);
-           
           }
 
 
 
      public function quizReport($session_id){
 
-      $quiz=new Quiz;
-      $quiz->generateQuizReport($session_id);
+            /*$quiz=new Quiz;
+            $quiz->generateQuizReport($session_id);
 
-       $report =$quiz->generateQuizReport($session_id);
+             $report =$quiz->generateQuizReport($session_id);
 
-     //return $report;
+           
 
 
-      return $this->response->collection($report,new QuizReportTransformer($session_id))->setStatusCode(200);
+            return $this->response->collection($report,new QuizReportTransformer($session_id))->setStatusCode(200);*/
 
+
+/*
+        $userAnswers=QuizSessionUserAnswer::
+
+        join('quiz_session','quiz_session.id','=','quiz_session_users_answers.quiz_session_id')
+     
+      ->join('questions','questions.id','=','quiz_session_users_answers.question_id')
+     
+      ->join('users','users.id','=','quiz_session_users_answers.user_id')
+      
+      ->where('quiz_session.id',$session_id)
+     
+      ->get();*/
+
+
+/*$userAnswers=Question::join('questions.id','=','quiz_session_users_answers.question_id')
+->join('quiz_session','quiz_session.id','=','quiz_session_users_answers.quiz_session_id')
+
+->where('quiz_session.id',$session_id)
+
+->get();
+                      
+*/
+
+/*$userAnswers=DB::table('questions')
+->join('quiz_session_users_answers','questions.id','=','quiz_session_users_answers.question_id')
+->join('quiz_session','quiz_session.id','=','quiz_session_users_answers.quiz_session_id')
+->where('quiz_session_id',$session_id)
+->get();
+*/
+
+
+//$username = DB::table('users')->join('roles', 'users.role_id', '=', 'roles.id')->where('users.id', '=', '1')
+
+
+       
+/*$userAnswers=DB::table('questions')
+->join('quiz_session_users_answers','questions.id','=','quiz_session_users_answers.question_id')
+->join('quiz_session','quiz_session.id','=','quiz_session_users_answers.quiz_session_id')
+->where('quiz_session_id',$session_id)
+->get();*/
+
+
+   $userAnswers=QuizQuestion::join('quiz_session','quiz_session.id','=','quiz_session_questions.quiz_session_id')
+                            ->join('questions','questions.id','=','quiz_session_questions.question_id')
+                            ->join('packs','packs.id','=','quiz_session.pack_id')
+                            ->join('categories','categories.id','=','quiz_session.category_id')
+                            ->where('quiz_session.id',$session_id)
+                            ->get();  
+
+
+  return $this->response->collection($userAnswers,new QuizReportTransformer($session_id))->setStatusCode(200);
+
+
+           
+
+        
 
      }
 

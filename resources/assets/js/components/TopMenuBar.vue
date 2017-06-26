@@ -21,10 +21,6 @@
       this.$store.dispatch('runSockets')
      
  
-
-
-
-  
              
               const authUser=JSON.parse(window.localStorage.getItem('authUser'))
               const userCategories=JSON.parse(window.localStorage.getItem('userCategories'))

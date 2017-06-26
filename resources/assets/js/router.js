@@ -43,9 +43,13 @@ import VueRouter from 'vue-router';
     import ChallengeStartPage from './pages/ChallengeStartPage.vue';
 
     import ChallengePlayground from './pages/ChallengePlayground.vue';
+    
+    import Results from './pages/ResultsPage.vue';
 
+    import Chats from './pages/ChatsPage.vue';
 
- 
+    import ChatView from './pages/ChatView.vue';
+
     //routes
 const routes=
 [
@@ -85,16 +89,19 @@ const routes=
     
     {path:'/challenge_start_page', component: ChallengeStartPage, name:'challenge_start_page', meta: { requiresAuth: true }},
    
-    {path:'/challenge_playground', component: ChallengePlayground, name:'challenge_playground', meta: { requiresAuth: true }}
+    {path:'/challenge_playground', component: ChallengePlayground, name:'challenge_playground', meta: { requiresAuth: true }},
+    
+    {path:'/results', component: Results, name:'results', meta: { requiresAuth: true }},
+   
+    {path:'/chats', component: Chats, name:'chats', meta: { requiresAuth: true }},
+    
+    {path:'/chatview', component: ChatView, name:'chatview', meta: { requiresAuth: true }},
 
 ];
-
-
 
 const router=new VueRouter({
 	mode:'history',
 	routes
-
 })
 
 router.beforeEach((to, from, next) => {

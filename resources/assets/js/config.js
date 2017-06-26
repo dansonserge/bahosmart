@@ -36,8 +36,16 @@ export const challengeRequest='api/users/quiz/request';
 
 export const acceptRequest='api/users/quiz/accept';
 
-
 export const startChallenge='api/users/quiz/start';
+
+export const addUserAnswers='api/users/quiz/answers';
+
+export const getPrivateRoom='api/users/private_room';
+
+export const sendChat='api/users/add_chat';
+
+export const submitPost='api/new/post';
+
 
 
 

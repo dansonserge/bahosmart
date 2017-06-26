@@ -10,98 +10,56 @@ import {mapState} from 'Vuex'
   
 export default{
     computed:{
+
+
+
+   ...mapState({
+        userStore: state => state.userStore,
+        initDataStore: state => state.userStore
+       }),
       
    },
 
    data(){
 
     return {
+
+      'testing_pic':'',
+      'testing_id':'',
       
     }
 
    },
-
    mounted(){
-    
+      this.testing_id=this.userStore.authUser.userobject.id
+      this.testing_pic=this.userStore.authUser.userobject.profile_picture
+      console.log(this.testing_id)
+      console.log('your pic is: ',this.testing_pic)
    },
 
    methods:{
-   
-   }
+     getChat:function(){
+       console.log('we are getting a user!')
+
+        this.$router.push({name:'chats'})
+     }
+ }
 }
 
 </script>
 
 <template>
-  
-          <table class="table table-hover">
-          <tr>
-            <td class="col-xs-1 one_chat_item" data-userid="2">
-            
-            <img src="images/default-profile-male.gif" class="img-circle" height="50" width="50">
-              
-            </td>
-           
-            <td class="col-xs-11 one_chat" data-userid="2">
-      
-        
-            <b></b><br>
+  <div>
+     <div class="list-group col-md-xs">
+       <a class="list-group-item" v-on:click="getChat()">
+           <img :src="testing_pic" class="img-circle" height="50">
+              <span class="card-user-names">Joe Doe</span>
+            <i class="fa fa-caret-right pull-right card-menu-list" aria-hidden="true"></i>
+       </a>
+     </div>
 
-            <p>Are you there so that we talk about the business?...</p>
-              
-     
-           </td>
+</div>
          
-            
-          </tr>
-          <tr>
-            <td class="col-xs-1 one_chat_item" data-userid="4">
-             
-              
-            
-            </td>
-            <td class="col-xs-11 one_chat" data-userid="4">
-           
-            <b>Yannick Pacifique</b><br>
-          <p>Are you there so that we talk about the business?...</p>
-              
-              
-           
-            </td>
-            
-          </tr>
-          <tr>
-            <td class="col-xs-1 one_chat_item" data-userid="3">
-            
-            
-            </td>
-            <td class="col-xs-11 one_chat" data-userid="3">
-           
-            <b>Yannick Pacifique</b><br>
-          <p>Are you there so that we talk about the business?...</p>
-              
-              
-           
-            </td>
-            
-          </tr>
-          <tr>
-            <td class="col-xs-1 one_chat_item" data-userid="3">
-             
-            
-            </td>
-            <td class="col-xs-11 one_chat">
-           
-            <b>Yannick Pacifique</b><br>
-          <p>Are you there so that we talk about the business?...</p>
-              
-              
-           
-            </td>
-            
-          </tr>
-
-        </table> 
 </template>
 
 <style>

@@ -54,8 +54,15 @@ class UserController extends Controller
         $user->password= Hash::make($request->password);
         $user->save();
         return response()->json(['success'=>1,'failure'=>0],200);
+
+     /*   Mail::send('emails.email_verification', ['title' =>'Danson Serge test', 'content' => "Hello, I'm testing"], function ($message)
+             {
+                 $message->from('me@gmail.com', 'Serge Danson');
+                 $message->to('sergedanson@gmail.com');
+             });
+             return response()->json(['message' => 'Request completed']);
         
-         
+         */
         }
      }
 

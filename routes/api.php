@@ -129,6 +129,15 @@ $api->version('v1',function($api){
 //accept challenge call
      $api->post('users/challenge-call/cancel','App\Http\Controllers\ChallengeController@challengeCallCancel');
 
+//create a chat room 
+     $api->post('users/private_room','App\Http\Controllers\ChatController@getPrivateRoom');
+
+//add a chat to a room 
+     $api->post('users/add_chat','App\Http\Controllers\ChatController@addChat');
+
+//check messages 
+     $api->get('users/chats/{room_id}','App\Http\Controllers\ChatController@getMesageData');
+
 
 
 

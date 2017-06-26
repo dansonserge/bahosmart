@@ -22,10 +22,10 @@
          
          socket.emit(channel+'_'+data.channel_type+'_'+data.user_two_id,data);
          socket.emit(channel+'_'+data.channel_type+'_'+data.user_one_id,data);
-         
+        
 
-         //console.log(channel+'_'+data.channel_type+'_'+data.user_two_id)
-      
+         socket.emit(channel+'_'+data.channel_type,data);
+       
 
          //socket.emit('start_challenge_view',data);
  
@@ -33,23 +33,6 @@
 
 
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -66,17 +49,6 @@
 
 
 */
-
-
-
-
-
-
-
-
-
-
-
 
 
 

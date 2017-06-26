@@ -41,9 +41,8 @@ export default {
                       email:'',
                       password:'',
                       password_confirmation:''
-                     }
-
-                }
+                  }
+            }
         },
         methods:{ 
 
@@ -137,7 +136,6 @@ this.$http.get(userRoute,{headers: getHeader()})
                     'scope':''
                   }
 
-
 this.$http.post(userCategories,pData).then((response) => {
  
      window.localStorage.setItem('userCategories',JSON.stringify(response.body.data));
@@ -208,7 +206,7 @@ this.$http.post(userCategories,pData).then((response) => {
                           <ol>
                            <!--error list-->
 
-                           <li v-for="x in signup_error_data">{{x}}</li>
+                             <li v-for="x in signup_error_data">{{x}}</li>
 
 
                           </ol>

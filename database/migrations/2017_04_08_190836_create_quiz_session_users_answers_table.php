@@ -20,7 +20,7 @@ class CreateQuizSessionUsersAnswersTable extends Migration
             $table->integer('quiz_session_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->integer('question_id')->unsigned();
-            $table->integer('answer_id')->unsigned();
+            $table->integer('answer_id')->unsigned()->nullable();
 
             $table->integer('status')->default(0);
             $table->timestamps(); 

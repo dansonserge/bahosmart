@@ -10,10 +10,11 @@ use App\Answer;
 
 use App\QuizSessionUserAnswer;
 
-
+use Dingo\Api\Routing\Helpers;
 
 class QuizReportTransformer extends TransformerAbstract{
 
+use Helpers;
 
     protected $session_id;
 	
@@ -33,7 +34,7 @@ class QuizReportTransformer extends TransformerAbstract{
 					              ->where('questions.id',$question_id)
 			                      ->get();
 
-        return $this->response->collection($userAnswe,new QuizSessionUserAnswerTransformer)->setStatusCode(200);
+        //return $this->response->collection($userAnswers,new QuizSessionUserAnswerTransformer)->setStatusCode(200);
 
                          return $userAnswers;
 
@@ -46,14 +47,31 @@ public function getAnswer($question_id){
       return $answer;
    
     }
-public function transform(QuizQuestion $report){
+
+
+public function transform(QuizQuestion $result){
 
       return
         [ 
-          "id" => (int) $report->id,
-          "question_text"=>$report->question_text,
-          "real_answer"=>$this->getAnswer($report->id),
-          "users_answers"=>$this->getUsersAnswers($this->session_id,$report->id)
+          "id"=>(int) $result->id,
+          "quiz_session_id"=>$result->quiz_session_id,
+          "question_id"=> $result->question_id,
+          "status"=>$result->status,
+          "created_at"=> $result->created_at,
+          "updated_at"=> $result->updated_at,
+          "pack_id"=>$result->pack_id,
+          "category_id"=>$result->category_id,
+      
+          "user_one_start"=>$result->user_one_start,
+          "user_two_start"=>$result->user_two_start,
+    
+          "question_text"=>$result->question_text,
+          "category_name"=> $result->name,
+          "number_of_questions"=> $result->questions,
+          "real_answer"=>$this->getAnswer($result->question_id),
+          "users_answers"=>$this->getUsersAnswers($this->session_id,$result->question_id)
+        
+         
        ];
 
     }
