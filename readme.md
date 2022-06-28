@@ -5,4 +5,4 @@
 ## About Bahosmart
 
 The project entails the development of an educational social media platform that will be available as both mobile and web application. It will keep a user up to date about his/her careers based on the people followed by the user. A user will be able to post about a specific category like Computer programming, Medicine, Mathematics and his/her followers are notified about the new update. Users will communicate with real-time messages (chats).
-The chapter deals with the background of the study, problem statement, objectives, scope, justification of the study, and the budget.
+
